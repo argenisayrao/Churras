@@ -9,6 +9,7 @@ using Domain.Repositories;
 using Microsoft.Azure.Cosmos;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
+using Domain.Services.CreateNewBbq;
 
 namespace Domain
 {
@@ -18,6 +19,7 @@ namespace Domain
         public static IServiceCollection AddDomainDependencies(this IServiceCollection services)
             => services.AddSingleton(new Person { Id = "e5c7c990-7d75-4445-b5a2-700df354a6a0" })
                 .AddEventStoreDependencies()
+                .AddDomainServiceDependencies()
                 .AddRepositoriesDependencies();
 
         public static IServiceCollection AddEventStoreDependencies(this IServiceCollection services)
@@ -56,6 +58,13 @@ namespace Domain
 
             services.AddSingleton<IEventStore<Bbq>>(bbqStore);
             services.AddSingleton<IEventStore<Person>>(peopleStore);
+
+            return services;
+        }
+
+        public static IServiceCollection AddDomainServiceDependencies(this IServiceCollection services)
+        {
+            services.AddSingleton<ICreateNewBbqService,CreateNewBbqService>();
 
             return services;
         }
