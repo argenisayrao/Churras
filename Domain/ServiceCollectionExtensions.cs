@@ -10,6 +10,7 @@ using Microsoft.Azure.Cosmos;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Domain.Services.CreateNewBbq;
+using Domain.Services.RunModerateBbq;
 
 namespace Domain
 {
@@ -36,7 +37,7 @@ namespace Domain
 
             client.GetDatabase(DATABASE)
                 .GetContainer("Lookups")
-                .UpsertItemAsync(new Lookups { PeopleIds = Data.People.Select(o => o.Id).ToList(), ModeratorIds = Data.People.Where(p => p.IsCoOwner).Select(o => o.Id).ToList() })
+                .UpsertItemAsync(new Lookups { PeopleIds = Data.People.Where(p => p.IsCoOwner is false).Select(o => o.Id).ToList(), ModeratorIds = Data.People.Where(p => p.IsCoOwner).Select(o => o.Id).ToList() })
                 .GetAwaiter()
                 .GetResult();
 
@@ -65,6 +66,7 @@ namespace Domain
         public static IServiceCollection AddDomainServiceDependencies(this IServiceCollection services)
         {
             services.AddSingleton<ICreateNewBbqService,CreateNewBbqService>();
+            services.AddSingleton<IModerateBbqService, ModerateBbqService>();
 
             return services;
         }

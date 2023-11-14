@@ -2,8 +2,10 @@ using CrossCutting;
 using Domain.Entities;
 using Domain.Events;
 using Domain.Repositories;
+using Domain.Services.RunModerateBbq;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using System.Net;
 
 namespace Serverless_Api
 {
@@ -12,12 +14,14 @@ namespace Serverless_Api
         private readonly SnapshotStore _snapshots;
         private readonly IPersonRepository _persons;
         private readonly IBbqRepository _repository;
+        private readonly IModerateBbqService _moderateBbqService;
 
-        public RunModerateBbq(IBbqRepository repository, SnapshotStore snapshots, IPersonRepository persons)
+        public RunModerateBbq(IBbqRepository repository, SnapshotStore snapshots, IPersonRepository persons, IModerateBbqService moderateBbqService)
         {
             _persons = persons;
             _snapshots = snapshots;
             _repository = repository;
+            _moderateBbqService = moderateBbqService;
         }
 
         [Function(nameof(RunModerateBbq))]
@@ -25,23 +29,16 @@ namespace Serverless_Api
         {
             var moderationRequest = await req.Body<ModerateBbqRequest>();
 
-            var bbq = await _repository.GetAsync(id);
+            if (moderationRequest == null)
+                return await req.CreateResponse(HttpStatusCode.BadRequest, "input is required.");
 
-            bbq.Apply(new BbqStatusUpdated(moderationRequest.GonnaHappen, moderationRequest.TrincaWillPay));
+            var response = await _moderateBbqService.Run(new ModerateBbqInput(moderationRequest.GonnaHappen, moderationRequest.TrincaWillPay, id));
 
-            var lookups = await _snapshots.AsQueryable<Lookups>("Lookups").SingleOrDefaultAsync();
+            if (response.Barbecue is null)
+                return await req.CreateResponse(HttpStatusCode.NotFound, "Barbecue not found.");
 
-            foreach (var personId in lookups.PeopleIds)
-            {
-                var person = await _persons.GetAsync(personId);
-                var @event = new PersonHasBeenInvitedToBbq(bbq.Id, bbq.Date, bbq.Reason);
-                person.Apply(@event);
-                await _persons.SaveAsync(person);
-            }
 
-            await _repository.SaveAsync(bbq);
-
-            return await req.CreateResponse(System.Net.HttpStatusCode.OK, bbq.TakeSnapshot());
+            return await req.CreateResponse(System.Net.HttpStatusCode.OK, response.Barbecue.TakeSnapshot());
         }
     }
 }
