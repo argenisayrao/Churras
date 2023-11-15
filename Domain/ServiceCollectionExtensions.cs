@@ -75,6 +75,7 @@ namespace Domain
             services.AddSingleton<IGetInviteService, GetInviteService>();
             services.AddSingleton<IGetShoppingListBbqService, GetShoppingListBbqService>();
             services.AddSingleton<IAcceptInviteService, AcceptInviteService>();
+            services.AddSingleton<IDeclineInviteService, DeclineInviteService>();
 
             return services;
         }

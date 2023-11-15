@@ -7,34 +7,41 @@ using Domain.Repositories;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using static Domain.ServiceCollectionExtensions;
+using Domain.Services.DeclineInvite;
+using Domain.Services.Dtos;
+using System.Net;
 
 namespace Serverless_Api
 {
     public partial class RunDeclineInvite
     {
         private readonly Person _user;
-        private readonly IPersonRepository _personRepository;
+        private readonly IDeclineInviteService _declineInviteService;
 
-        public RunDeclineInvite(Person user, IPersonRepository personRepository)
+        public RunDeclineInvite(Person user, IDeclineInviteService declineInviteService)
         {
             _user = user;
-            _personRepository = personRepository;
+            _declineInviteService = declineInviteService;
         }
 
         [Function(nameof(RunDeclineInvite))]
         public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "put", Route = "person/invites/{inviteId}/decline")] HttpRequestData req, string inviteId)
         {
-            var person = await _personRepository.GetAsync(_user.Id);
+            if (string.IsNullOrWhiteSpace(inviteId))
+                return await req.CreateResponse(HttpStatusCode.BadRequest, "Barbecue id is required");
 
-            if (person == null)
-                return req.CreateResponse(System.Net.HttpStatusCode.NoContent);
+            if (string.IsNullOrWhiteSpace(_user.Id))
+                return await req.CreateResponse(HttpStatusCode.Unauthorized, "User id is required in header");
 
-            person.Apply(new InviteWasDeclined { InviteId = inviteId, PersonId = person.Id });
+            var response = await _declineInviteService.Run(new AnswerInviteInput(_user.Id, inviteId));
 
-            await _personRepository.SaveAsync(person);
-            //Implementar impacto da recusa do convite no churrasco caso ele já tivesse sido aceito antes
+            if (response.PersonWasFound is false)
+                return await req.CreateResponse(HttpStatusCode.NotFound, "User not found");
 
-            return await req.CreateResponse(System.Net.HttpStatusCode.OK, person.TakeSnapshot());
+            if (response.BbqWasFound is false)
+                return await req.CreateResponse(HttpStatusCode.NotFound, "Barbecue not found");
+
+            return await req.CreateResponse(HttpStatusCode.OK, response.Person.TakeSnapshot());
         }
     }
 }

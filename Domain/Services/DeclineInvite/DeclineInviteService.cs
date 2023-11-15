@@ -5,15 +5,17 @@ using System.Threading.Tasks;
 
 namespace Domain.Services.DeclineInvite
 {
-    internal class AcceptInviteService: IAcceptInviteService
+    internal class DeclineInviteService: IDeclineInviteService
     {
-        private readonly IPersonRepository _personRepository;
         private readonly IBbqRepository _bbqRepository;
-        public AcceptInviteService(IPersonRepository personRepository, IBbqRepository bbqRepository)
+        private readonly IPersonRepository _personRepository;
+        
+        public DeclineInviteService(IBbqRepository bbqRepository, IPersonRepository personRepository)
         {
-            _personRepository = personRepository;
             _bbqRepository = bbqRepository;
+            _personRepository = personRepository;
         }
+
         public async Task<AnswerInviteOutput> Run(AnswerInviteInput input)
         {
             var person = await _personRepository.GetAsync(input.PersonId);
@@ -21,9 +23,9 @@ namespace Domain.Services.DeclineInvite
 
             if (person is null || bbq is null)
                 return new AnswerInviteOutput(person, bbq);
-
-            person.Apply(new InviteWasAccepted { InviteId = input.InviteId, IsVeg = input.IsVeg, PersonId = person.Id });
-            bbq.Apply(new InviteWasAccepted { InviteId = input.InviteId, IsVeg = input.IsVeg, PersonId = person.Id });
+ 
+            person.Apply(new InviteWasDeclined { InviteId = input.InviteId, PersonId = person.Id });
+            bbq.Apply(new InviteWasDeclined { InviteId = input.InviteId, PersonId = person.Id });
 
             await _personRepository.SaveAsync(person);
             await _bbqRepository.SaveAsync(bbq);
