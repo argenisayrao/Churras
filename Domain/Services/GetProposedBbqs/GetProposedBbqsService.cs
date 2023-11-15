@@ -10,14 +10,14 @@ namespace Domain.Services.GetProposedBbqs
     public class GetProposedBbqsService : IGetProposedBbqsService
     {
         private readonly Person _user;
-        private readonly IBbqRepository _bbqs;
-        private readonly IPersonRepository _repository;
+        private readonly IBbqRepository _bbqRepository;
+        private readonly IPersonRepository _personRepository;
 
         public GetProposedBbqsService(IPersonRepository repository, IBbqRepository bbqs, Person user)
         {
             _user = user;
-            _bbqs = bbqs;
-            _repository = repository;
+            _bbqRepository = bbqs;
+            _personRepository = repository;
         }
 
         public async Task<List<object>> Run()
@@ -38,7 +38,7 @@ namespace Domain.Services.GetProposedBbqs
 
         private async Task<List<Bbq>> GetBbqsWithDateGreatherThanNow()
         {
-            var moderator = await _repository.GetAsync(_user.Id);
+            var moderator = await _personRepository.GetAsync(_user.Id);
 
             if (moderator is null)
                 return new List<Bbq>();
@@ -47,7 +47,7 @@ namespace Domain.Services.GetProposedBbqs
 
             foreach (var bbqId in moderator.Invites.Where(i => i.Date > DateTime.Now).Select(o => o.Id).ToList())
             {
-                var bbq = await _bbqs.GetAsync(bbqId);
+                var bbq = await _bbqRepository.GetAsync(bbqId);
 
                 if (bbq is null)
                     continue;

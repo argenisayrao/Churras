@@ -13,25 +13,25 @@ namespace Serverless_Api
     public partial class RunDeclineInvite
     {
         private readonly Person _user;
-        private readonly IPersonRepository _repository;
+        private readonly IPersonRepository _personRepository;
 
-        public RunDeclineInvite(Person user, IPersonRepository repository)
+        public RunDeclineInvite(Person user, IPersonRepository personRepository)
         {
             _user = user;
-            _repository = repository;
+            _personRepository = personRepository;
         }
 
         [Function(nameof(RunDeclineInvite))]
         public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "put", Route = "person/invites/{inviteId}/decline")] HttpRequestData req, string inviteId)
         {
-            var person = await _repository.GetAsync(_user.Id);
+            var person = await _personRepository.GetAsync(_user.Id);
 
             if (person == null)
                 return req.CreateResponse(System.Net.HttpStatusCode.NoContent);
 
             person.Apply(new InviteWasDeclined { InviteId = inviteId, PersonId = person.Id });
 
-            await _repository.SaveAsync(person);
+            await _personRepository.SaveAsync(person);
             //Implementar impacto da recusa do convite no churrasco caso ele já tivesse sido aceito antes
 
             return await req.CreateResponse(System.Net.HttpStatusCode.OK, person.TakeSnapshot());
