@@ -25,7 +25,7 @@ namespace Serverless_Api
             if (person == null)
                 return req.CreateResponse(System.Net.HttpStatusCode.NoContent);
 
-            return await req.CreateResponse(System.Net.HttpStatusCode.OK, person.TakeSnapshot());
+            return await req.CreateResponse(System.Net.HttpStatusCode.OK,  person.TakeSnapshot());
         }
     }
 }

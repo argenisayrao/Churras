@@ -4,6 +4,7 @@ using Domain.Entities;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Domain.Services.CreateNewBbq;
+using static Serverless_Api.RunCreateNewBbq;
 
 namespace Serverless_Api
 {
@@ -19,12 +20,12 @@ namespace Serverless_Api
         [Function(nameof(RunCreateNewBbq))]
         public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "churras")] HttpRequestData req)
         {
-            var input = await req.Body<NewBbqRequest>();
+            var newBbqRequest = await req.Body<NewBbqRequest>();
 
-            if (input == null)
+            if (newBbqRequest == null)
                 return await req.CreateResponse(HttpStatusCode.BadRequest, "input is required.");
 
-            var inputService = new CreateNewBbqServiceInput(input.Date, input.Reason, input.IsTrincasPaying);
+            var inputService = new CreateNewBbqServiceInput(newBbqRequest.Date, newBbqRequest.Reason, newBbqRequest.IsTrincasPaying);
             var churrasSnapshot = await _createNewBbq.Run(inputService);
 
             return await req.CreateResponse(HttpStatusCode.Created, churrasSnapshot);
