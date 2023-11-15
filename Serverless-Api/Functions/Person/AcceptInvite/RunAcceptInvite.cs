@@ -9,11 +9,11 @@ namespace Serverless_Api
     public partial class RunAcceptInvite
     {
         private readonly Person _user;
-        private readonly IPersonRepository _repository;
-        public RunAcceptInvite(IPersonRepository repository, Person user)
+        private readonly IPersonRepository _personRepository;
+        public RunAcceptInvite(IPersonRepository personRepository, Person user)
         {
             _user = user;
-           _repository = repository;
+           _personRepository = personRepository;
         }
 
         [Function(nameof(RunAcceptInvite))]
@@ -21,11 +21,11 @@ namespace Serverless_Api
         {
             var answer = await req.Body<InviteAnswer>();
 
-            var person = await _repository.GetAsync(_user.Id);
+            var person = await _personRepository.GetAsync(_user.Id);
            
             person.Apply(new InviteWasAccepted { InviteId = inviteId, IsVeg = answer.IsVeg, PersonId = person.Id });
 
-            await _repository.SaveAsync(person);
+            await _personRepository.SaveAsync(person);
 
             //implementar efeito do aceite do convite no churrasco
             //quando tiver 7 pessoas ele está confirmado

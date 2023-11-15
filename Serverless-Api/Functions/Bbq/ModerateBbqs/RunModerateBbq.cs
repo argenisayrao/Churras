@@ -24,7 +24,7 @@ namespace Serverless_Api
 
             var response = await _moderateBbqService.Run(new ModerateBbqInput(moderationRequest.GonnaHappen, moderationRequest.TrincaWillPay, id));
 
-            if (response.Barbecue is null)
+            if (response.WasFound is false)
                 return await req.CreateResponse(HttpStatusCode.NotFound, "Barbecue not found.");
 
             return await req.CreateResponse(System.Net.HttpStatusCode.OK, response.Barbecue.TakeSnapshot());
