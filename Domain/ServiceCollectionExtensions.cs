@@ -14,6 +14,7 @@ using Domain.Services.RunModerateBbq;
 using Domain.Services.GetProposedBbqs;
 using Domain.Services.GetInvite;
 using Domain.Services.ShoppingListBbq;
+using Domain.Services.DeclineInvite;
 
 namespace Domain
 {
@@ -73,6 +74,7 @@ namespace Domain
             services.AddSingleton<IGetProposedBbqsService, GetProposedBbqsService>();
             services.AddSingleton<IGetInviteService, GetInviteService>();
             services.AddSingleton<IGetShoppingListBbqService, GetShoppingListBbqService>();
+            services.AddSingleton<IAcceptInviteService, AcceptInviteService>();
 
             return services;
         }
@@ -96,7 +98,10 @@ namespace Domain
             new Person { Id = "171f9858-ddb1-4adf-886b-2ea36e0f0644", Name = "Marcos Oliveira", IsCoOwner = true },
             new Person { Id = "3f74e6bd-11b2-4d48-a294-239a7a2ce7d5", Name = "Gustavo Sanfoninha", IsCoOwner = true },
             new Person { Id = "795fc8f2-1473-4f19-b33e-ade1a42ed123", Name = "Alexandre Morales", IsCoOwner = false },
-            new Person { Id = "addd0967-6e16-4328-bab1-eec63bf31968", Name = "Leandro Espera", IsCoOwner = false }
+            new Person { Id = "addd0967-6e16-4328-bab1-eec63bf31968", Name = "Leandro Espera", IsCoOwner = false },
+            new Person { Id = "a7c0f9d8-3d4e-4c6d-9f8a-9e3b8cf201d", Name = "Ronaldo Nazario", IsCoOwner = false },
+            new Person { Id = "65b6a7e7-8a1b-47f1-925c-8b303829decc", Name = "Rogerio Dutra", IsCoOwner = false },
+            new Person { Id = "f345012a-7dd0-4fe3-af4e-67bb32f64fa2", Name = "Adriano Dias", IsCoOwner = false }
         };
     }
 }

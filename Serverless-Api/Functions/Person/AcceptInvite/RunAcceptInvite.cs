@@ -3,17 +3,22 @@ using Domain.Entities;
 using Domain.Repositories;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using Domain.Services.DeclineInvite;
+using System.Net;
+using Domain.Services.AcceptInvite;
 
 namespace Serverless_Api
 {
     public partial class RunAcceptInvite
     {
-        private readonly Person _user;
+        private readonly IAcceptInviteService _acceptInviteService;
         private readonly IPersonRepository _personRepository;
-        public RunAcceptInvite(IPersonRepository personRepository, Person user)
+        private readonly Person _user;
+        public RunAcceptInvite(IPersonRepository personRepository, Person user, IAcceptInviteService acceptInviteService)
         {
+            _personRepository = personRepository;
+            _acceptInviteService = acceptInviteService;
             _user = user;
-           _personRepository = personRepository;
         }
 
         [Function(nameof(RunAcceptInvite))]
@@ -21,16 +26,18 @@ namespace Serverless_Api
         {
             var answer = await req.Body<InviteAnswer>();
 
-            var person = await _personRepository.GetAsync(_user.Id);
-           
-            person.Apply(new InviteWasAccepted { InviteId = inviteId, IsVeg = answer.IsVeg, PersonId = person.Id });
+            if (string.IsNullOrWhiteSpace(inviteId))
+                return await req.CreateResponse(HttpStatusCode.BadRequest, "Barbecue id is required");
 
-            await _personRepository.SaveAsync(person);
+            if (answer is null)
+                return await req.CreateResponse(HttpStatusCode.BadRequest, "Body is required");
 
-            //implementar efeito do aceite do convite no churrasco
-            //quando tiver 7 pessoas ele está confirmado
+            var response = await _acceptInviteService.Run(new AnswerInviteInput ( _user.Id,  inviteId, answer.IsVeg));
+          
+            if(response.Person is null)
+                return req.CreateResponse(HttpStatusCode.NotFound);
 
-            return await req.CreateResponse(System.Net.HttpStatusCode.OK, person.TakeSnapshot());
+            return await req.CreateResponse(HttpStatusCode.OK, response.Person.TakeSnapshot());
         }
     }
 }

@@ -34,7 +34,7 @@ namespace Domain.Entities
         public void When(InviteWasAccepted @event)
         {
             var invite = Invites.FirstOrDefault(x => x.Id == @event.InviteId);
-            invite.Status = InviteStatus.Accepted;
+          //  invite.Status = InviteStatus.Accepted;
         }
 
         public void When(InviteWasDeclined @event)

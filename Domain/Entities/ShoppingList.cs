@@ -2,13 +2,13 @@
 {
     public class ShoppingList
     {
-        public ShoppingList(int quantityMeatInKilos, int quantityVegetablesInKilos)
+        public ShoppingList()
         {
-            QuantityMeatInKilos = quantityMeatInKilos;
-            QuantityVegetablesInKilos = quantityVegetablesInKilos;
+            QuantityMeatInKilos = 0;
+            QuantityVegetablesInKilos = 0;
         }
 
-        public int QuantityMeatInKilos {get;set;}
-        public int QuantityVegetablesInKilos { get; set; }
+        public double QuantityMeatInKilos { get; set; }
+        public double QuantityVegetablesInKilos { get; set; }
     }
 }
