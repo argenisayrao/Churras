@@ -1,31 +1,31 @@
-using Domain;
-using Domain.Entities;
-using Domain.Repositories;
+using Domain.Services.GetInvite;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using System.Net;
 
 namespace Serverless_Api
 {
     public partial class RunGetInvites
     {
-        private readonly Person _user;
-        private readonly IPersonRepository _repository;
+        private readonly IGetInviteService _getInviteService;
 
-        public RunGetInvites(Person user, IPersonRepository repository)
+        public RunGetInvites(IGetInviteService getInviteService)
         {
-            _user = user;
-            _repository = repository;
+            _getInviteService = getInviteService;
         }
 
         [Function(nameof(RunGetInvites))]
-        public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "person/invites")] HttpRequestData req)
+        public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "person/{personId}/invites")] HttpRequestData req, string personId)
         {
-            var person = await _repository.GetAsync(_user.Id);
+            if(string.IsNullOrWhiteSpace(personId))
+                return await req.CreateResponse(HttpStatusCode.BadRequest, "person id is required");
 
-            if (person == null)
-                return req.CreateResponse(System.Net.HttpStatusCode.NoContent);
+            var response = await _getInviteService.Run(personId);
 
-            return await req.CreateResponse(System.Net.HttpStatusCode.OK,  person.TakeSnapshot());
+            if (response.Person == null)
+                return req.CreateResponse(HttpStatusCode.NotFound);
+
+            return await req.CreateResponse(HttpStatusCode.OK, response.Person.TakeSnapshot());
         }
     }
 }
