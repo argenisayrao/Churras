@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Domain.Events;
 
 namespace Domain.Entities
@@ -10,7 +11,7 @@ namespace Domain.Entities
         public BbqStatus Status { get; set; }
         public DateTime Date { get; set; }
         public bool IsTrincasPaying { get; set; }
-        public ShoppingList ShoppingList { get; set; }
+        public ShoppingList ShoppingList { get; set; } = new();
         public List<ConfirmedGuest> ConfirmedGuest { get; set; } = new();
         public void When(ThereIsSomeoneElseInTheMood @event)
         {
@@ -44,22 +45,56 @@ namespace Domain.Entities
 
         public void When(InviteWasAccepted @event)
         {
-            ConfirmedGuest.Add(new ConfirmedGuest(@event.PersonId, @event.IsVeg));
+            if(ConfirmedGuest.Select(guest => guest.Id).Contains(@event.PersonId))
+            {
+                UpdatedGuestAndUpdateShoppingList(@event);
+            }
+            else
+            {
+                CreateGuestAndSetShoppingList(@event);
+            }
+            ShoppingList.QuantityVegetablesInKilos = Math.Round(ShoppingList.QuantityVegetablesInKilos, 2);
+            ShoppingList.QuantityMeatInKilos = Math.Round(ShoppingList.QuantityMeatInKilos, 2);
+        }
 
+        private void CreateGuestAndSetShoppingList(InviteWasAccepted @event)
+        {
+            ConfirmedGuest.Add(new ConfirmedGuest(@event.PersonId, @event.IsVeg));
             if (ConfirmedGuest.Count > 6)
                 Status = BbqStatus.Confirmed;
             else
                 Status = BbqStatus.PendingConfirmations;
 
             if (@event.IsVeg)
-            {               
+            {
                 ShoppingList.QuantityVegetablesInKilos += 0.6;
-            }                
+            }
             else
             {
                 ShoppingList.QuantityVegetablesInKilos += 0.3;
                 ShoppingList.QuantityMeatInKilos += 0.3;
             }
+        }
+
+        private void UpdatedGuestAndUpdateShoppingList(InviteWasAccepted @event)
+        {
+            var person = ConfirmedGuest.Where(guest => guest.Id == @event.PersonId).FirstOrDefault();
+
+            if (person.IsVeg == @event.IsVeg)
+                return;
+
+            if(@event.IsVeg)
+            {
+                ShoppingList.QuantityVegetablesInKilos += 0.3;
+                ShoppingList.QuantityMeatInKilos -= 0.3;
+            }
+            else
+            {
+                ShoppingList.QuantityVegetablesInKilos -= 0.3;
+                ShoppingList.QuantityMeatInKilos += 0.3;
+            }
+
+            ConfirmedGuest.Where(guest => guest.Id == @event.PersonId).FirstOrDefault().IsVeg = @event.IsVeg;
         }
 
         public object TakeSnapshot()
@@ -70,7 +105,8 @@ namespace Domain.Entities
                 Date,
                 IsTrincasPaying,
                 Status = Status.ToString(),
-                ShoppingList
+                ShoppingList,
+                ConfirmedGuest
             };
         }
     }

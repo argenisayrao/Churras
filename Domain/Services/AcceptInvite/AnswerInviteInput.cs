@@ -1,6 +1,6 @@
 ﻿namespace Domain.Services.AcceptInvite
 {
-    internal class AnswerInviteInput
+    public class AnswerInviteInput
     {
         public AnswerInviteInput(string personId, string invitedId, bool isVeg)
         {

@@ -5,6 +5,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Domain.Services.DeclineInvite;
 using System.Net;
+using Domain.Services.AcceptInvite;
 
 namespace Serverless_Api
 {
@@ -23,24 +24,20 @@ namespace Serverless_Api
         [Function(nameof(RunAcceptInvite))]
         public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "put", Route = "person/invites/{inviteId}/accept")] HttpRequestData req, string inviteId)
         {
-            if(string.IsNullOrWhiteSpace(inviteId))
-                return await req.CreateResponse(HttpStatusCode.BadRequest, "Barbecue id is required");
-
             var answer = await req.Body<InviteAnswer>();
 
-            //if (string.IsNullOrWhiteSpace(answer.))
-            //    return await req.CreateResponse(HttpStatusCode.BadRequest, "Barbecue id is required");
+            if (string.IsNullOrWhiteSpace(inviteId))
+                return await req.CreateResponse(HttpStatusCode.BadRequest, "Barbecue id is required");
 
-            var person = await _personRepository.GetAsync(_user.Id);
-           
-            person.Apply(new InviteWasAccepted { InviteId = inviteId, IsVeg = answer.IsVeg, PersonId = person.Id });
+            if (answer is null)
+                return await req.CreateResponse(HttpStatusCode.BadRequest, "Body is required");
 
-            await _personRepository.SaveAsync(person);
+            var response = await _acceptInviteService.Run(new AnswerInviteInput ( _user.Id,  inviteId, answer.IsVeg));
+          
+            if(response.Person is null)
+                return req.CreateResponse(HttpStatusCode.NotFound);
 
-            //implementar efeito do aceite do convite no churrasco
-            //quando tiver 7 pessoas ele está confirmado
-
-            return await req.CreateResponse(System.Net.HttpStatusCode.OK, person.TakeSnapshot());
+            return await req.CreateResponse(HttpStatusCode.OK, response.Person.TakeSnapshot());
         }
     }
 }
