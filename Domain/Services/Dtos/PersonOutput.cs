@@ -6,7 +6,7 @@ namespace Domain.Services.Dtos
     {
         public Person? Person { get; set; }
         public bool WasFound { get; set; }
-        public PersonOutput(Person person)
+        public PersonOutput(Person? person)
         {
             if (person == null)
                 WasFound = false;

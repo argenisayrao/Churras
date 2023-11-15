@@ -3,23 +3,33 @@ using Domain.Entities;
 using Domain.Repositories;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using Domain.Services.DeclineInvite;
+using System.Net;
 
 namespace Serverless_Api
 {
     public partial class RunAcceptInvite
     {
-        private readonly Person _user;
+        private readonly IAcceptInviteService _acceptInviteService;
         private readonly IPersonRepository _personRepository;
-        public RunAcceptInvite(IPersonRepository personRepository, Person user)
+        private readonly Person _user;
+        public RunAcceptInvite(IPersonRepository personRepository, Person user, IAcceptInviteService acceptInviteService)
         {
+            _personRepository = personRepository;
+            _acceptInviteService = acceptInviteService;
             _user = user;
-           _personRepository = personRepository;
         }
 
         [Function(nameof(RunAcceptInvite))]
         public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "put", Route = "person/invites/{inviteId}/accept")] HttpRequestData req, string inviteId)
         {
+            if(string.IsNullOrWhiteSpace(inviteId))
+                return await req.CreateResponse(HttpStatusCode.BadRequest, "Barbecue id is required");
+
             var answer = await req.Body<InviteAnswer>();
+
+            //if (string.IsNullOrWhiteSpace(answer.))
+            //    return await req.CreateResponse(HttpStatusCode.BadRequest, "Barbecue id is required");
 
             var person = await _personRepository.GetAsync(_user.Id);
            

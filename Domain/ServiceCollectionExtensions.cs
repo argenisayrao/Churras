@@ -14,6 +14,7 @@ using Domain.Services.RunModerateBbq;
 using Domain.Services.GetProposedBbqs;
 using Domain.Services.GetInvite;
 using Domain.Services.ShoppingListBbq;
+using Domain.Services.DeclineInvite;
 
 namespace Domain
 {
@@ -73,6 +74,7 @@ namespace Domain
             services.AddSingleton<IGetProposedBbqsService, GetProposedBbqsService>();
             services.AddSingleton<IGetInviteService, GetInviteService>();
             services.AddSingleton<IGetShoppingListBbqService, GetShoppingListBbqService>();
+            services.AddSingleton<IAcceptInviteService, AcceptInviteService>();
 
             return services;
         }

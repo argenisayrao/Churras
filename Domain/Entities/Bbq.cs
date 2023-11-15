@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Domain.Events;
 
 namespace Domain.Entities
@@ -10,6 +11,7 @@ namespace Domain.Entities
         public DateTime Date { get; set; }
         public bool IsTrincasPaying { get; set; }
         public ShoppingList ShoppingList { get; set; }
+        public List<ConfirmedGuest> ConfirmedGuest { get; set; } = new();
         public void When(ThereIsSomeoneElseInTheMood @event)
         {
             Id = @event.Id.ToString();
@@ -38,6 +40,26 @@ namespace Domain.Entities
             //deve ser retirado da lista de compras do churrasco.
             //Se ao rejeitar, o número de pessoas confirmadas no churrasco for menor que sete,
             //o churrasco deverá ter seu status atualizado para “Pendente de confirmações”. 
+        }
+
+        public void When(InviteWasAccepted @event)
+        {
+            ConfirmedGuest.Add(new ConfirmedGuest(@event.PersonId, @event.IsVeg));
+
+            if (ConfirmedGuest.Count > 6)
+                Status = BbqStatus.Confirmed;
+            else
+                Status = BbqStatus.PendingConfirmations;
+
+            if (@event.IsVeg)
+            {               
+                ShoppingList.QuantityVegetablesInKilos += 0.6;
+            }                
+            else
+            {
+                ShoppingList.QuantityVegetablesInKilos += 0.3;
+                ShoppingList.QuantityMeatInKilos += 0.3;
+            }
         }
 
         public object TakeSnapshot()
