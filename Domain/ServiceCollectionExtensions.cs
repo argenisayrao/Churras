@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Domain.Services.CreateNewBbq;
 using Domain.Services.RunModerateBbq;
+using Domain.Services.GetProposedBbqs;
 
 namespace Domain
 {
@@ -67,6 +68,7 @@ namespace Domain
         {
             services.AddSingleton<ICreateNewBbqService,CreateNewBbqService>();
             services.AddSingleton<IModerateBbqService, ModerateBbqService>();
+            services.AddSingleton<IGetProposedBbqsService, GetProposedBbqsService>();
 
             return services;
         }
