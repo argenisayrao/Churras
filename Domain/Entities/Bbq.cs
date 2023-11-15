@@ -26,6 +26,8 @@ namespace Domain.Entities
 
             if (@event.TrincaWillPay)
                 IsTrincasPaying = true;
+            else
+                IsTrincasPaying = false;
         }
 
         public void When(InviteWasDeclined @event)
