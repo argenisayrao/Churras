@@ -1,0 +1,264 @@
+{
+	"info": {
+		"_postman_id": "71660718-f8db-4fde-a77f-3fe280c83ad0",
+		"name": "Desafio técnico",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31101684"
+	},
+	"item": [
+		{
+			"name": "Alguém pilha?",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "personId",
+						"value": "{{moderador-1}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"date\": \"2023-01-20T18:00:00\",\r\n    \"reason\": \"Comemorar a entrada do novo dev back da mitsui\",\r\n    \"isTrincasPaying\": true\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:7296/api/churras",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7296",
+					"path": [
+						"api",
+						"churras"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "E aí, vai rolar?",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "personId",
+						"value": "{{moderador-2}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:7296/api/churras",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7296",
+					"path": [
+						"api",
+						"churras"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Tem aval dos sócios?",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.globals.set(\"churras-id\", \"56a2a1f6-375d-4b54-a502-96f9f37db99b\")"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "personId",
+						"value": "{{moderador-1}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"GonnaHappen\": true,\r\n    \"TrincaWillPay\": true\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:7296/api/churras/cd8bf360-3795-4fab-b45e-3dac3ae67fe0/moderar",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7296",
+					"path": [
+						"api",
+						"churras",
+						"cd8bf360-3795-4fab-b45e-3dac3ae67fe0",
+						"moderar"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Churras? Quando?",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "personId",
+						"value": "{{funcionario-1}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:7296/api/person/invites",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7296",
+					"path": [
+						"api",
+						"person",
+						"invites"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Aceitar convite",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "personId",
+						"value": "{{moderador-1}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"isVeg\": false\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:7296/api/person/invites/e5c7c990-7d75-4445-b5a2-700df354a6a0/accept",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7296",
+					"path": [
+						"api",
+						"person",
+						"invites",
+						"e5c7c990-7d75-4445-b5a2-700df354a6a0",
+						"accept"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Rejeitar convite",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "personId",
+						"value": "{{moderador-1}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"isVeg\": false\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:7296/api/person/invites/3d9702aa-6f1c-437c-a3ad-bd6c1daea143/decline",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7296",
+					"path": [
+						"api",
+						"person",
+						"invites",
+						"3d9702aa-6f1c-437c-a3ad-bd6c1daea143",
+						"decline"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Lista de compras",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:7296/api/person/e5c7c990-7d75-4445-b5a2-700df354a6a0/shopping-list/4ce8b5e4-812f-45dd-87cb-7f7b96d347b2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7296",
+					"path": [
+						"api",
+						"person",
+						"e5c7c990-7d75-4445-b5a2-700df354a6a0",
+						"shopping-list",
+						"4ce8b5e4-812f-45dd-87cb-7f7b96d347b2"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
