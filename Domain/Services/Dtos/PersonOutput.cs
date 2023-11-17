@@ -15,7 +15,6 @@ namespace Domain.Services.Dtos
                 Person = person;
                 WasFound = true;
             }
-
         }
     }
 }

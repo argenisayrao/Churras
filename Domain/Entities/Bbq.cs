@@ -21,11 +21,11 @@ namespace Domain.Entities
             Status = BbqStatus.New;
         }
 
-        public void When(BbqStatusUpdated @event)
+        internal void When(BbqStatusUpdated @event)
         {
             if (@event.GonnaHappen)
                 Status = BbqStatus.PendingConfirmations;
-            else 
+            else
                 Status = BbqStatus.ItsNotGonnaHappen;
 
             if (@event.TrincaWillPay)
@@ -34,18 +34,28 @@ namespace Domain.Entities
                 IsTrincasPaying = false;
         }
 
-        public void When(InviteWasDeclined @event)
+        internal void When(InviteWasDeclined @event)
         {
-            //TODO:Deve ser possível rejeitar um convite já aceito antes.
-            //Se este for o caso, a quantidade de comida calculada pelo aceite anterior do convite
-            //deve ser retirado da lista de compras do churrasco.
-            //Se ao rejeitar, o número de pessoas confirmadas no churrasco for menor que sete,
-            //o churrasco deverá ter seu status atualizado para “Pendente de confirmações”. 
+            var person = ConfirmedGuest.Where(guest => guest.Id == @event.PersonId).FirstOrDefault();
+
+            if (person is null)
+                return;
+
+            if (person.IsVeg)
+                ShoppingList.QuantityVegetablesInKilos -= 0.6;
+            else
+            {
+                ShoppingList.QuantityVegetablesInKilos -= 0.3;
+                ShoppingList.QuantityMeatInKilos -= 0.3;
+            }
+
+            ConfirmedGuest.Remove(person);
+            SetStatus();
         }
 
-        public void When(InviteWasAccepted @event)
+        internal void When(InviteWasAccepted @event)
         {
-            if(ConfirmedGuest.Select(guest => guest.Id).Contains(@event.PersonId))
+            if (ConfirmedGuest.Select(guest => guest.Id).Contains(@event.PersonId))
             {
                 UpdatedGuestAndUpdateShoppingList(@event);
             }
@@ -57,13 +67,10 @@ namespace Domain.Entities
             ShoppingList.QuantityMeatInKilos = Math.Round(ShoppingList.QuantityMeatInKilos, 2);
         }
 
-        private void CreateGuestAndSetShoppingList(InviteWasAccepted @event)
+        internal void CreateGuestAndSetShoppingList(InviteWasAccepted @event)
         {
             ConfirmedGuest.Add(new ConfirmedGuest(@event.PersonId, @event.IsVeg));
-            if (ConfirmedGuest.Count > 6)
-                Status = BbqStatus.Confirmed;
-            else
-                Status = BbqStatus.PendingConfirmations;
+            SetStatus();
 
             if (@event.IsVeg)
             {
@@ -76,14 +83,14 @@ namespace Domain.Entities
             }
         }
 
-        private void UpdatedGuestAndUpdateShoppingList(InviteWasAccepted @event)
+        internal void UpdatedGuestAndUpdateShoppingList(InviteWasAccepted @event)
         {
             var person = ConfirmedGuest.Where(guest => guest.Id == @event.PersonId).FirstOrDefault();
 
             if (person.IsVeg == @event.IsVeg)
                 return;
 
-            if(@event.IsVeg)
+            if (@event.IsVeg)
             {
                 ShoppingList.QuantityVegetablesInKilos += 0.3;
                 ShoppingList.QuantityMeatInKilos -= 0.3;
@@ -97,7 +104,25 @@ namespace Domain.Entities
             ConfirmedGuest.Where(guest => guest.Id == @event.PersonId).FirstOrDefault().IsVeg = @event.IsVeg;
         }
 
+        private void SetStatus()
+        {
+            if (ConfirmedGuest.Count > 6)
+                Status = BbqStatus.Confirmed;
+            else
+                Status = BbqStatus.PendingConfirmations;
+        }
         public object TakeSnapshot()
+        {
+            return new
+            {
+                Id,
+                Date,
+                IsTrincasPaying,
+                Status = Status.ToString()
+            };
+        }
+
+        public object TakeSnapshotWithShoppingListAndConfirmedGuest()
         {
             return new
             {

@@ -1,4 +1,4 @@
-﻿namespace Domain.Services.AcceptInvite
+﻿namespace Domain.Services.Dtos
 {
     public class AnswerInviteInput
     {
@@ -7,6 +7,12 @@
             PersonId = personId;
             InviteId = invitedId;
             IsVeg = isVeg;
+        }
+
+        public AnswerInviteInput(string personId, string invitedId)
+        {
+            PersonId = personId;
+            InviteId = invitedId;
         }
 
         public string PersonId { get; set; }
