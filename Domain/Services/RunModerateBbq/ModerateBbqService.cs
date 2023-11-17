@@ -4,6 +4,7 @@ using Domain.Events;
 using Domain.Repositories;
 using Domain.Repositories.Dtos;
 using Domain.Services.Dtos;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,6 +33,9 @@ namespace Domain.Services.RunModerateBbq
 
             if (input.GonnaHappen is false)
             {
+                if (bbq.Status == BbqStatus.ItsNotGonnaHappen)
+                    return new BbqOutput(true);
+
                 var query = _snapshots.AsQueryable<PersonsHasBeenInvitedToBbqDto>("People").Where(person => person.Body.Id == input.BarbecueId);
                 var personsDto = await SnapshotStoreExtensions.ToListAsync<PersonsHasBeenInvitedToBbqDto>(query);
 
@@ -51,6 +55,12 @@ namespace Domain.Services.RunModerateBbq
             }
             else
             {
+                if (bbq.Status == BbqStatus.PendingConfirmations ||
+                    bbq.Status == BbqStatus.Confirmed ||
+                    bbq.Status == BbqStatus.Confirmed ||
+                    bbq.Date < DateTime.Now)
+                    return new BbqOutput(true);
+
                 var lookups = await _snapshots.AsQueryable<Lookups>("Lookups").SingleOrDefaultAsync();
 
                 foreach (var personId in lookups.PeopleIds)
@@ -65,9 +75,9 @@ namespace Domain.Services.RunModerateBbq
                     await _personsRepository.SaveAsync(person);
                 }
             }
-            
+
             bbq.Apply(new BbqStatusUpdated(input.GonnaHappen, input.TrincaWillPay));
-            
+
             await _bbqRepository.SaveAsync(bbq);
 
             return new BbqOutput(bbq);

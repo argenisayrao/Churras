@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "be76598e-3d07-46c2-baae-6b5f8e6f10a3",
+		"_postman_id": "71660718-f8db-4fde-a77f-3fe280c83ad0",
 		"name": "Desafio técnico",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "19509065"
+		"_exporter_id": "31101684"
 	},
 	"item": [
 		{
@@ -103,7 +103,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"GonnaHappen\": false,\r\n    \"TrincaWillPay\": false\r\n}",
+					"raw": "{\r\n    \"GonnaHappen\": true,\r\n    \"TrincaWillPay\": true\r\n}\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -111,7 +111,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:7296/api/churras/{{churras-id}}/moderar",
+					"raw": "http://localhost:7296/api/churras/cd8bf360-3795-4fab-b45e-3dac3ae67fe0/moderar",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -120,8 +120,15 @@
 					"path": [
 						"api",
 						"churras",
-						"{{churras-id}}",
+						"cd8bf360-3795-4fab-b45e-3dac3ae67fe0",
 						"moderar"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
 					]
 				}
 			},
@@ -134,7 +141,7 @@
 				"header": [
 					{
 						"key": "personId",
-						"value": "{{moderador-1}}",
+						"value": "{{funcionario-1}}",
 						"type": "text"
 					}
 				],
@@ -175,7 +182,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:7296/api/person/invites/69e13cc4-b5dd-4790-ba06-267b9205a6ff/accept",
+					"raw": "http://localhost:7296/api/person/invites/e5c7c990-7d75-4445-b5a2-700df354a6a0/accept",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -185,7 +192,7 @@
 						"api",
 						"person",
 						"invites",
-						"69e13cc4-b5dd-4790-ba06-267b9205a6ff",
+						"e5c7c990-7d75-4445-b5a2-700df354a6a0",
 						"accept"
 					]
 				}
@@ -225,6 +232,29 @@
 						"invites",
 						"3d9702aa-6f1c-437c-a3ad-bd6c1daea143",
 						"decline"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Lista de compras",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:7296/api/person/e5c7c990-7d75-4445-b5a2-700df354a6a0/shopping-list/4ce8b5e4-812f-45dd-87cb-7f7b96d347b2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "7296",
+					"path": [
+						"api",
+						"person",
+						"e5c7c990-7d75-4445-b5a2-700df354a6a0",
+						"shopping-list",
+						"4ce8b5e4-812f-45dd-87cb-7f7b96d347b2"
 					]
 				}
 			},

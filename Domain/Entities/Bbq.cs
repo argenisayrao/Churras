@@ -21,7 +21,7 @@ namespace Domain.Entities
             Status = BbqStatus.New;
         }
 
-        public void When(BbqStatusUpdated @event)
+        internal void When(BbqStatusUpdated @event)
         {
             if (@event.GonnaHappen)
                 Status = BbqStatus.PendingConfirmations;
@@ -34,7 +34,7 @@ namespace Domain.Entities
                 IsTrincasPaying = false;
         }
 
-        public void When(InviteWasDeclined @event)
+        internal void When(InviteWasDeclined @event)
         {
             var person = ConfirmedGuest.Where(guest => guest.Id == @event.PersonId).FirstOrDefault();
 
@@ -53,7 +53,7 @@ namespace Domain.Entities
             SetStatus();
         }
 
-        public void When(InviteWasAccepted @event)
+        internal void When(InviteWasAccepted @event)
         {
             if (ConfirmedGuest.Select(guest => guest.Id).Contains(@event.PersonId))
             {
@@ -67,7 +67,7 @@ namespace Domain.Entities
             ShoppingList.QuantityMeatInKilos = Math.Round(ShoppingList.QuantityMeatInKilos, 2);
         }
 
-        private void CreateGuestAndSetShoppingList(InviteWasAccepted @event)
+        internal void CreateGuestAndSetShoppingList(InviteWasAccepted @event)
         {
             ConfirmedGuest.Add(new ConfirmedGuest(@event.PersonId, @event.IsVeg));
             SetStatus();
@@ -83,7 +83,7 @@ namespace Domain.Entities
             }
         }
 
-        private void UpdatedGuestAndUpdateShoppingList(InviteWasAccepted @event)
+        internal void UpdatedGuestAndUpdateShoppingList(InviteWasAccepted @event)
         {
             var person = ConfirmedGuest.Where(guest => guest.Id == @event.PersonId).FirstOrDefault();
 
@@ -112,6 +112,17 @@ namespace Domain.Entities
                 Status = BbqStatus.PendingConfirmations;
         }
         public object TakeSnapshot()
+        {
+            return new
+            {
+                Id,
+                Date,
+                IsTrincasPaying,
+                Status = Status.ToString()
+            };
+        }
+
+        public object TakeSnapshotWithShoppingListAndConfirmedGuest()
         {
             return new
             {
